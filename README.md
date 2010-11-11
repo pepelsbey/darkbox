@@ -5,8 +5,6 @@ Demo: [pepelsbey.github.com/darkbox](http://pepelsbey.github.com/darkbox/)
 
 ## Supported Browsers
 
-Desktop platforms:
-
 * Chrome
 * Firefox
 * IE7+

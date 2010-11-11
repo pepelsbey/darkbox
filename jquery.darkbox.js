@@ -33,7 +33,7 @@
 						attr( 'alt', link.attr( 'title' ) ).
 						end().
 					end().
-				show().
+				addClass( 'darkbox-frame-on' ).
 				children( 'div.darkbox-shadow' ).
 					animate( { opacity: 0.6 }, shadowFadeInTime );
 		}
@@ -44,7 +44,7 @@
 				shadowFadeOutTime,
 				function () {
 					$( 'div.darkbox-frame' ).
-						hide().
+						removeClass( 'darkbox-frame-on' ).
 						children( 'div.darkbox-canvas' ).
 							removeClass( darkboxStateClasses ).
 							children( 'img' ).
@@ -108,14 +108,12 @@
 					function () {
 						$( this ).
 							removeClass( 'darkbox-canvas-load' ).
-							addClass( 'darkbox-canvas-done' ).
-							children( 'img' ).
-								show();
+							addClass( 'darkbox-canvas-done' );
 					}
 				);
 		}
 
-		$( '<div class="darkbox-frame"><div class="darkbox-shadow"></div><div class="darkbox-canvas"><img><div class="darkbox-button" title="Закрыть"></div></div></div>' ).
+		$( '<div class="darkbox-frame"><div class="darkbox-shadow"></div><div class="darkbox-canvas"><img><div class="darkbox-button" title="Close"></div></div></div>' ).
 			children( 'div.darkbox-shadow' ).
 				click( closeBox ).
 				end().

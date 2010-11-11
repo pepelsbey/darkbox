@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<title>Darkbox</title>
+	<meta charset="UTF-8">
+	<style>
+		BODY {
+			margin:0;
+			padding:40px 50px;
+			height:1500px;
+			color:#666;
+			font:13px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+			}
+		H1 {
+			margin:0 0 25px;
+			line-height:1;
+			}
+		A {
+			text-decoration:none;
+			color:#069;
+			}
+		.gallery {
+			overflow:hidden;
+			}
+			.gallery A {
+				float:left;
+				margin:0 25px 25px 0;
+				text-decoration:none;
+				}
+			.gallery IMG {
+				display:block;
+				margin:0 0 15px;
+				}
+		P {
+			font-size:11px;
+			}
+	</style>
+	<link rel="stylesheet" href="jquery.darkbox.css">
+	<!--[if IE]><link rel="stylesheet" href="jquery.darkbox.css"><![endif]-->
+	<script src="j/jquery.js"></script>
+	<script src="jquery.darkbox.js"></script>
+</head>
+<body>
+	<h1>Darkbox</h1>
+	<div class="gallery">
+		<a href="i-static/soda.jpg" rel="darkbox">
+			<img src="i-static/soda.thumb.jpg" alt="Soda">
+			800 × 500
+		</a>
+		<a href="i-static/chevy.jpg" rel="darkbox">
+			<img src="i-static/chevy.thumb.jpg" alt="Chevy">
+			1920 × 1200
+		</a>
+		<a href="i-static/BROKEN" rel="darkbox">
+			<img src="i-static/fall.thumb.jpg" alt="Fall">
+			Broken
+		</a>
+	</div>
+	<p>Photos by John Carey © <a href="http://fiftyfootshadows.net/">fiftyfootshadows.net</a></p>
+	<script>
+		$( 'a[rel=darkbox]' ).darkbox();
+	</script>
+</body>
+</html>

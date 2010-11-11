@@ -1,5 +1,5 @@
 # Darkbox
-Simple but powerful script for viewing images
+Simple but powerful jQuery plugin for viewing images
 
 Demo: [pepelsbey.github.com/darkbox](http://pepelsbey.github.com/darkbox/)
 

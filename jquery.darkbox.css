@@ -1,88 +1,98 @@
 /* Darkbox
 ---------------------------------------- */
-.darkbox-frame {
-	position:fixed;
-	top:0;
-	left:0;
-	z-index:999;
-	display:none;
-	overflow:hidden;
-	width:100%;
-	height:100%;
-	}
-.darkbox-frame-on {
-	display:block;
-	}
+.darkbox {
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:999;
+    display:none;
+    overflow:hidden;
+    width:100%;
+    height:100%;
+    }
+    .darkbox .darkbox-shadow {
+        position:absolute;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:#000;
+        opacity:0;
+        }
+    .darkbox .darkbox-canvas {
+        position:absolute;
+        top:50%;
+        left:50%;
+        overflow:hidden;
+        margin:-40px 0 0 -40px;
+        width:80px;
+        height:80px;
+        -webkit-border-radius:15px;
+        -moz-border-radius:15px;
+        border-radius:15px;
+        background:#000 url(i/spinner.png) 24px 24px no-repeat;
+        opacity:0.5;
+        }
+        .darkbox .darkbox-canvas IMG {
+            display:block;
+            visibility:hidden;
+            }
+    .darkbox .darkbox-button {
+        position:absolute;
+        top:-13px;
+        z-index:1;
+        display:none;
+        overflow:hidden;
+        width:30px;
+        height:30px;
+        background:url(i/close.png) no-repeat;
+        cursor:pointer;
+        }
+    .darkbox .darkbox-button-left {
+        left:-16px;
+        }
+    .darkbox .darkbox-button-right {
+        right:-16px;
+        }
 
-/* Shadow */
-.darkbox-shadow {
-	position:absolute;
-	top:0;
-	left:0;
-	width:100%;
-	height:100%;
-	background:#000;
-	opacity:0;
-	}
+/* Darkbox On
+---------------------------------------- */
+.darkbox-on {
+    display:block;
+    }
+    .darkbox-on .darkbox-shadow {
+        opacity:0.6;
+        }
 
-/* Canvas */
-.darkbox-canvas {
-	position:absolute;
-	top:50%;
-	left:50%;
-	overflow:hidden;
-	margin:-40px 0 0 -40px;
-	width:80px;
-	height:80px;
-	-webkit-border-radius:12px;
-	-moz-border-radius:12px;
-	border-radius:12px;
-	background:#000 url(i/spinner.gif) 50% 50% no-repeat;
-	opacity:.3;
-	}
-	.darkbox-canvas IMG {
-		visibility:hidden;
-		}
-	.darkbox-canvas .darkbox-button {
-		display:none;
-		}
-.darkbox-canvas-error {
-	background-image:url(i/error.png);
-	}
-.darkbox-canvas-load {
-	-webkit-border-radius:0;
-	-moz-border-radius:0;
-	border-radius:0;
-	background-image:none;
-	}
-.darkbox-canvas-done {
-	overflow:visible;
-	-webkit-box-shadow:0 0 20px rgba(0, 0, 0, 0.5);
-	-moz-box-shadow:0 0 20px rgba(0, 0, 0, 0.5);
-	box-shadow:0 0 20px rgba(0, 0, 0, 0.5);
-	opacity:1;
-	}
-	.darkbox-canvas-done IMG {
-		visibility:visible;
-		}
-	.darkbox-canvas-done .darkbox-button {
-		display:block;
-		}
+/* Darkbox Loaded
+---------------------------------------- */
+.darkbox-loaded {
+    }
+    .darkbox-loaded .darkbox-canvas {
+        overflow:visible;
+        height:auto;
+        -webkit-border-radius:0;
+        -moz-border-radius:0;
+        border-radius:0;
+        background-image:none;
+        }
+        .darkbox-loaded .darkbox-canvas IMG {
+            width:100%;
+            visibility:visible;
+            }
 
-/* Button */
-.darkbox-button {
-	position:absolute;
-	top:-13px;
-	z-index:1;
-	overflow:hidden;
-	width:30px;
-	height:30px;
-	background:url(i/close.png) no-repeat;
-	cursor:pointer;
-	}
-.darkbox-button-left {
-	left:-16px;
-	}
-.darkbox-button-right {
-	right:-16px;
-	}
+/* Darkbox Error
+---------------------------------------- */
+.darkbox-error {
+    }
+    .darkbox-error .darkbox-canvas {
+        background-image:url(i/error.png);
+        }
+
+/* Darkbox Done
+---------------------------------------- */
+.darkbox-done {
+    }
+    .darkbox-done .darkbox-button {
+        display:block;
+        }

@@ -74,7 +74,8 @@
         -webkit-border-radius:0;
         -moz-border-radius:0;
         border-radius:0;
-        background-image:none;
+        background:none;
+		opacity:1;
         }
         .darkbox-loaded .darkbox-canvas IMG {
             width:100%;

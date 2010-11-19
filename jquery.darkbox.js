@@ -101,8 +101,6 @@
 
 				img_width = Math.round( img_width * ratio );
 				img_height = Math.round( img_height * ratio );
-
-				img.css( { width: img_width, height: img_height } );
 			}
 
 			darkbox.addClass( 'darkbox-loaded' );

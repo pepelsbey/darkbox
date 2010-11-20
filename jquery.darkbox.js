@@ -37,7 +37,6 @@
 
 			var link = $( this );
 
-			// NOTE: ?_=timestamp is for Opera 9 and Safari, possible non-caching behaviour
 			darkbox.addClass( 'darkbox-on' );
 
 			darkboxCanvas.css( {
@@ -48,8 +47,8 @@
 				'opacity': 0.5
 			} );
 
-				// FIXME: Constants for initial shift, step height, number of
-				// steps, interval?
+			// FIXME: Constants for initial shift, step height, number of
+			// steps, interval?
 			spinnerAnimationIntervalId = setInterval( function () {
 				var shift = 24 - ( 56 * spinnerStep ); 
 
@@ -61,7 +60,7 @@
 			darkboxImage.
 				one( 'error', handleImageLoadError ).
 				css( { 'width': '', 'height': '' } ).
-				attr( 'src', link.attr( 'href' ) ). // + '?_=' + ( +new Date() )
+				attr( 'src', link.attr( 'href' ) ).
 				attr( 'alt', link.attr( 'title' ) );
 
 			darkboxShadow.animate( { 'opacity': 0.6 }, shadowFadeInTime );

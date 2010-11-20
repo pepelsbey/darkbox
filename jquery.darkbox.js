@@ -22,8 +22,6 @@
 			var link = $( this ),
 				darkbox = $( 'div.darkbox' );
 
-			//darkbox.removeClass( darkboxStateClasses );
-
 			// NOTE: ?_=timestamp is for Opera 9 and Safari, possible non-caching behaviour
 			darkbox.
 				children( 'div.darkbox-canvas' ).
@@ -48,6 +46,7 @@
 					$( 'div.darkbox' ).
 						removeClass( darkboxStateClasses ).
 						children( 'div.darkbox-canvas' ).
+							stop(). // Stop animation on close
 							// FIXME: Prevent image download, current solution is not perfect
 							// http://stackoverflow.com/questions/930237/javascript-cancel-stop-image-requests
 							children( 'img' ).
@@ -110,12 +109,11 @@
 					width:      img_width,
 					marginLeft: -img_width / 2,
 					height:     img_height,
-					marginTop:  -img_height / 2
+					marginTop:  -img_height / 2,
+					opacity: 1
 					}, imageFadeInTime,
 					function () {
-						darkbox.
-							//removeClass( 'darkbox-loaded' ).
-							addClass( 'darkbox-done' );
+						darkbox.addClass( 'darkbox-done' );
 					}
 				);
 		}

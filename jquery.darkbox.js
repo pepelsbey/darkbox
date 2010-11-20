@@ -25,7 +25,13 @@
 			// NOTE: ?_=timestamp is for Opera 9 and Safari, possible non-caching behaviour
 			darkbox.
 				children( 'div.darkbox-canvas' ).
-					css( { width: '', marginLeft: '', height: '', marginTop: '' } ).
+					css( {
+						width: '',
+						marginLeft: '',
+						height: '',
+						marginTop: '',
+						opacity: 0.5
+					} ).
 					children( 'img' ).
 						one( 'error', handleImageLoadError ).
 						css( { width: '', height: '' } ).
@@ -121,6 +127,7 @@
 		// Add all necessary Darkbox nodes and handlers
 		$( '<div class="darkbox"><div class="darkbox-shadow"></div><div class="darkbox-canvas"><img alt=""><div class="darkbox-button" title="Close"></div></div></div>' ).
 			children( 'div.darkbox-shadow' ).
+				css( { opacity: 0 } ).
 				click( closeBox ).
 				end().
 			find( 'div.darkbox-button' ).

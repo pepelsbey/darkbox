@@ -1,10 +1,6 @@
-/* Darkbox
+/* Darkbox Done
 ---------------------------------------- */
-.darkbox-canvas {
-	-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(opacity=30)';
-	filter:progid:DXImageTransform.Microsoft.Alpha(opacity=30);
-	}
-.darkbox-canvas-done {
-	-ms-filter:none;
-	filter:none;
+.darkbox-done .darkbox-canvas {
+	-ms-filter:none !important;
+	filter:none !important;
 	}

@@ -1,6 +1,5 @@
 /* Darkbox Done
 ---------------------------------------- */
-.darkbox-done .darkbox-canvas {
-	-ms-filter:none !important;
+* + HTML .darkbox-done .darkbox-canvas {
 	filter:none !important;
 	}

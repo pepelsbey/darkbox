@@ -1,20 +1,55 @@
 ( function ( $ ) {
 
-	$.fn.darkbox = function () {
+	$.fn.darkbox = function ( userSet ) {
+		var set = { // default set
+			shadowOpacity: 0.6,
+			canvasOpacity: 0.5,
+			shadowFadeInTime: 200,
+			shadowFadeOutTime: 100,
+			imageFadeInTime: 400,
+			imageErrorFadeOutTime: 800,
+			boxMargin: 50, // For cases, when image is bigger than viewport
+			spinnerAnimationInterval: 90
+		};
+		for (var i in userSet){ // read user set
+			set[i] = userSet[i];
+		}
+
 		// Add all necessary Darkbox nodes
-		$( '<div class="darkbox"><div class="darkbox-shadow"></div><div class="darkbox-canvas"><img alt=""><div class="darkbox-button" title="Close"></div></div></div>' ).
-			appendTo( 'body' );
+//		<div class="darkbox">
+//			<div class="darkbox-shadow"></div>
+//			<div class="darkbox-canvas">
+//				<img alt="">
+//				<div class="darkbox-button" title="Close"></div>
+//			</div>
+//		</div>
 
-		var shadowFadeInTime  = 200,
-			shadowFadeOutTime = 100,
+		$('body')
+			.append(
+				$('<div/>',{
+					'class': 'darkbox'
+				})
+					.append(
+						$('<div/>',{
+							'class':'darkbox-shadow'
+						}),
+						$('<div/>',{
+							'class':'darkbox-canvas'
+						})
+							.append(
+								$('<img/>',{
+									alt: ''
+								}),
+								$('<div/>',{
+									'class':'darkbox-button',
+									title:'Close'
+								})
+							)
+					)
+			);
 
-			imageFadeInTime       = 400,
-			imageErrorFadeOutTime = 800,
-
-			darkboxStateClasses =
+			var darkboxStateClasses =
 				'darkbox-on darkbox-done darkbox-loaded darkbox-error',
-
-			boxMargin = 50, // For cases, when image is bigger than viewport
 
 			buttonPlaceClass = /mac/i.test( navigator.platform ) ?
 				'darkbox-button-left' :
@@ -40,17 +75,17 @@
 			darkbox.addClass( 'darkbox-on' );
 
 			darkboxCanvas.css( {
-				'width': '',
-				'marginLeft': '',
-				'height': '',
-				'marginTop': '',
-				'opacity': 0.5
+				width: '',
+				marginLeft: '',
+				height: '',
+				marginTop: '',
+				opacity: set.canvasOpacity
 			} );
 
 			// FIXME: Constants for initial shift, step height, number of
 			// steps, interval?
 			spinnerAnimationIntervalId = setInterval( function () {
-				var shift = 24 - ( 56 * spinnerStep ); 
+				var shift = 24 - ( 56 * spinnerStep );
 
 				darkboxCanvas.css( 'background-position', '24px ' + shift + 'px' );
 
@@ -59,11 +94,11 @@
 
 			darkboxImage.
 				one( 'error', handleImageLoadError ).
-				css( { 'width': '', 'height': '' } ).
+				css( { width: '', height: '' } ).
 				attr( 'src', link.attr( 'href' ) ).
 				attr( 'alt', link.attr( 'title' ) );
 
-			darkboxShadow.animate( { 'opacity': 0.6 }, shadowFadeInTime );
+			darkboxShadow.animate( { opacity: set.shadowOpacity }, set.shadowFadeInTime );
 		}
 
 		function closeBox() {
@@ -71,7 +106,7 @@
 
 			darkboxShadow.animate(
 				{ opacity: 0 },
-				shadowFadeOutTime,
+				set.shadowFadeOutTime,
 				function () {
 					darkbox.removeClass( darkboxStateClasses );
 
@@ -101,7 +136,7 @@
 			resetCanvasBackgroundChanges();
 
 			darkbox.addClass( 'darkbox-error' );
-			setTimeout( closeBox, imageErrorFadeOutTime );
+			setTimeout( closeBox, set.imageErrorFadeOutTime );
 		}
 
 		function handleImageLoad() {
@@ -121,12 +156,12 @@
 
 			// We must downsize the image when it is bigger than viewport
 			if (
-				( imgWidth > darkboxWidth - boxMargin ) ||
-				( imgHeight > darkboxHeight - boxMargin )
+				( imgWidth > darkboxWidth - set.boxMargin ) ||
+				( imgHeight > darkboxHeight - set.boxMargin )
 			) {
 				ratio = Math.min(
-					( darkboxWidth - boxMargin ) / imgWidth,
-					( darkboxHeight - boxMargin ) / imgHeight
+					( darkboxWidth - set.boxMargin ) / imgWidth,
+					( darkboxHeight - set.boxMargin ) / imgHeight
 				);
 
 				imgWidth = Math.round( imgWidth * ratio );
@@ -143,7 +178,7 @@
 					height:     imgHeight,
 					marginTop:  -imgHeight / 2,
 					opacity: 1
-					}, imageFadeInTime,
+					}, set.imageFadeInTime,
 					function () {
 						darkbox.addClass( 'darkbox-done' );
 					}

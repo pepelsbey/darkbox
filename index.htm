@@ -62,9 +62,30 @@
 	</div>
 	<p>Photos by John Carey © <a href="http://fiftyfootshadows.net/">fiftyfootshadows.net</a></p>
 	<script src="j/jquery.js"></script>
-	<script src="jquery.darkbox.min.js"></script>
+	<script src="jquery.darkbox.js"></script>
+
 	<script>
-		$( 'a[rel=darkbox]' ).darkbox();
+//		you can change any of default darkbox parametrs
+//		this is a list of all of them
+//		var set = {
+//			shadowOpacity: 0.6,
+//			canvasOpacity: 0.5,
+//			shadowFadeInTime: 200,
+//			shadowFadeOutTime: 100,
+//			imageFadeInTime: 400,
+//			imageErrorFadeOutTime: 800,
+//			boxMargin: 50,
+//			spinnerAnimationInterval: 90
+//		};
+
+//		for an example, make black darkbox background
+		var set = {
+			shadowOpacity: 0.9
+		};
+		$( 'a[rel=darkbox]' ).darkbox( set );
+
+//		usage with default darkbox parametrs
+//		$( 'a[rel=darkbox]' ).darkbox();
 	</script>
 </body>
 </html>

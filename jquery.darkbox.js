@@ -25,11 +25,15 @@
 			darkboxCanvas = darkbox.children( 'div.darkbox-canvas' ),
 			darkboxImage  = darkboxCanvas.children( 'img' ),
 			darkboxButton = darkboxCanvas.children( 'div.darkbox-button' ),
-			spinnerAnimationIntervalId = 0, spinnerStep = 0;
+			spinnerAnimationIntervalId = 0, spinnerStep = 0
+		;
 
-		function resetCanvasBackgroundChanges() {
+		function resetDarkboxCanvasState() {
 			clearInterval( spinnerAnimationIntervalId );
-			darkboxCanvas.css( 'background-position', '24px 24px' );
+			darkboxCanvas.css( {
+				'background-position': '24px 24px',
+				'overflow': '' // reset overflow to fix bug with close button clipping
+			} );
 		}
 
 		function openBox ( e ) {
@@ -50,7 +54,7 @@
 			// FIXME: Constants for initial shift, step height, number of
 			// steps, interval?
 			spinnerAnimationIntervalId = setInterval( function () {
-				var shift = 24 - ( 56 * spinnerStep ); 
+				var shift = 24 - ( 56 * spinnerStep );
 
 				darkboxCanvas.css( 'background-position', '24px ' + shift + 'px' );
 
@@ -67,15 +71,17 @@
 		}
 
 		function closeBox() {
-			resetCanvasBackgroundChanges();
+			resetDarkboxCanvasState();
+
+			// NOTE: moved outside of animation complete callback to prevent
+			// errors
+			darkboxCanvas.stop(); // Stop animation on close
 
 			darkboxShadow.animate(
 				{ opacity: 0 },
 				shadowFadeOutTime,
 				function () {
 					darkbox.removeClass( darkboxStateClasses );
-
-					darkboxCanvas.stop(); // Stop animation on close
 
 					// FIXME: Prevent image download, current solution is not perfect
 					// http://stackoverflow.com/questions/930237/javascript-cancel-stop-image-requests
@@ -98,14 +104,14 @@
 		}
 
 		function handleImageLoadError() {
-			resetCanvasBackgroundChanges();
+			resetDarkboxCanvasState();
 
 			darkbox.addClass( 'darkbox-error' );
 			setTimeout( closeBox, imageErrorFadeOutTime );
 		}
 
 		function handleImageLoad() {
-			resetCanvasBackgroundChanges();
+			resetDarkboxCanvasState();
 
 			var img = $( this ),
 				ratio = 1,
@@ -142,7 +148,7 @@
 					height:     imgHeight,
 					marginLeft: ( -imgWidth / 2 ) + 'px',
 					marginTop:  ( -imgHeight / 2 ) + 'px',
-					opacity: 1
+					opacity:    1
 					}, imageFadeInTime,
 					function () {
 						darkbox.addClass( 'darkbox-done' );

@@ -139,9 +139,9 @@
 			darkboxCanvas.
 				animate( {
 					width:      imgWidth,
-					marginLeft: -imgWidth / 2,
 					height:     imgHeight,
-					marginTop:  -imgHeight / 2,
+					marginLeft: ( -imgWidth / 2 ) + 'px',
+					marginTop:  ( -imgHeight / 2 ) + 'px',
 					opacity: 1
 					}, imageFadeInTime,
 					function () {

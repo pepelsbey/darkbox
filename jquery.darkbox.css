@@ -88,6 +88,11 @@
 ---------------------------------------- */
 .darkbox-done {
 	}
+	.darkbox-done .darkbox-canvas {
+		-webkit-box-shadow:0 0 20px rgba(0, 0, 0, 0.4);
+		-moz-box-shadow:0 0 20px rgba(0, 0, 0, 0.4);
+		box-shadow:0 0 20px rgba(0, 0, 0, 0.4);
+		}
 	.darkbox-done .darkbox-button {
 		display:block;
 		}

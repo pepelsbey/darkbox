@@ -181,17 +181,15 @@
 
               // FIXME: Prevent image download, current solution is not perfect
               // http://stackoverflow.com/questions/930237/javascript-cancel-stop-image-requests
-              d.darkboxImage.
-                unbind( 'error.darkbox' ).
-                unbind( 'load.darkbox' ).
-                attr( 'src', '' ); // FIXME: Fires error in IE - check
+              d.darkboxImage.attr( 'src', '' ); // FIXME: Fires error in IE - check
 
-              $( document ).
-                unbind( 'keydown.darkbox' ).
-                unbind( 'keypress.darkbox' );
-
-              d.darkboxShadow.unbind( 'click.darkbox' );
-              d.closeButton.unbind( 'click.darkbox' );
+              // Unbinding via namespace
+              $.each(
+                [ d.darkboxImage, d.darkboxShadow, d.closeButton, $( document ) ],
+                function( i, elem ) {
+                  elem.unbind( ".darkbox" )
+                }
+              );
             }
           );
         },

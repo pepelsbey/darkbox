@@ -44,11 +44,7 @@
 		      boxMargin             : 50
 		    };
 
-		    // Overwriting default settings
-		    !userArgs ? userArgs = {} : 0;
-		    for ( var key in defaultSettings ) {
-		      this[key] = userArgs[key] || defaultSettings[key]
-		    }
+		    $.extend( this, defaultSettings, userArgs );
 		  };
 
 		  // Constants

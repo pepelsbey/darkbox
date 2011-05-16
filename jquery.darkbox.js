@@ -6,14 +6,21 @@
 		if ( !$.fn.darkbox.Class ) {
 
 		  // Add all necessary Darkbox nodes (as constants)
-		  var buttonPlaceClass = /mac/i.test( navigator.platform ) ? // FIXME: Ubuntu 10(11?) by default has left-side controls too
+		  var closebuttonPlaceClass = /mac/i.test( navigator.platform ) ? // FIXME: Ubuntu 10(11?) by default has left-side controls too
 			  'darkbox-button-left' :
 			  'darkbox-button-right',
 
+			  closeButtonTitle = function() {
+			    switch( $( "html" ).attr( "lang" ) ) {
+			      case "ru":
+			        return "Закрыть";
+			      default:
+			        return "Close";
+			    }
+			  }(), // call it in place
+
         closeButton = $("<div/>", {
-          "class": "darkbox-button " + buttonPlaceClass,
-          // FIXME: Title set once at a first .darkbox() call. Change it in the openBox()?
-          title: ( userSettings || {} ).closeButtonTitle || "Close"
+          "class": "darkbox-button " + closebuttonPlaceClass
         }),
 
         darkbox = $( "<div class='darkbox'/>" ),
@@ -38,7 +45,9 @@
 		      imageFadeInTime       : 400,
 		      imageErrorFadeOutTime : 800,
 
-		      boxMargin             : 50
+		      boxMargin             : 50,
+
+		      closeButtonTitle      : closeButtonTitle
 		    };
 
 		    $.extend( this, defaultSettings, userArgs );
@@ -97,7 +106,9 @@
           // Other Darkbox handlers
           var closeBoxRebound = $.proxy(this, "closeBox");
           darkboxShadow.bind( "click.darkbox", closeBoxRebound );
-          closeButton.bind( "click.darkbox", closeBoxRebound );
+          closeButton.
+            bind( "click.darkbox", closeBoxRebound ).
+            attr( "title", this.closeButtonTitle );
 
           // FIXME: need better solution
           // Opera preventDefault for space on keypress

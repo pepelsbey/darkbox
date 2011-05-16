@@ -3,7 +3,7 @@
 	$.fn.darkbox = function ( userSettings ) {
 
 		// Run once
-		if ( !$.fn.darkbox.Klass ) {
+		if ( !$.fn.darkbox.Class ) {
 
 		  // Making shortcut
 		  var d = $.fn.darkbox;
@@ -30,7 +30,7 @@
 		    appendTo( "body" );
 
       // Darkbox constructor
-		  d.Klass = function( userArgs ) {
+		  d.Class = function( userArgs ) {
 		    var defaultSettings = {
 		      shadowFadeInTime      : 200,
 		      shadowFadeOutTime     : 100,
@@ -58,7 +58,7 @@
 		     To ensure all .darkbox() sets will have unique user's settings we must bind/unbind
 		     listeners on each image show.
 		  */
-		  d.Klass.prototype = {
+		  d.Class.prototype = {
 
 		    resetCanvasBackgroundChanges: function() {
 		      clearInterval( this.spinnerAnimationIntervalId );
@@ -208,7 +208,7 @@
 		  };
 		} // ran once
 
-    var darkbox = new $.fn.darkbox.Klass( userSettings );
+    var darkbox = new $.fn.darkbox.Class( userSettings );
     this.click( $.proxy( darkbox, "openBox" ) );
 
 		return this; // Support chaining

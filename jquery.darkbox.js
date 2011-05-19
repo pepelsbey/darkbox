@@ -9,9 +9,9 @@
       var closebuttonPlaceClass = /mac/i.test( navigator.platform ) ? // FIXME: Ubuntu 10(11?) by default has left-side controls too
           'darkbox-button-left' : 'darkbox-button-right',
 
-        darkboxStateClasses = 'darkbox-on darkbox-done darkbox-loaded darkbox-error',
+        DarkboxStateClasses = 'darkbox-on darkbox-done darkbox-loaded darkbox-error',
 
-        closeButtonTitle = function() {
+        CloseButtonTitle = function() {
           switch( $( 'html' ).attr( 'lang' ) ) {
             case 'ru':
               return 'Закрыть';
@@ -20,18 +20,18 @@
           }
         }(), // call it in place
 
-        closeButton = $( '<div/>', {
+        CloseButton = $( '<div/>', {
           'class': 'darkbox-button ' + closebuttonPlaceClass
         }),
 
-        darkbox = $( '<div class="darkbox"/>' ),
-        darkboxShadow = $( '<div class="darkbox-shadow"/>' ),
-        darkboxCanvas = $( '<div class="darkbox-canvas"/>' ),
-        darkboxImage = $( '<img/>' );
+        Darkbox = $( '<div class="darkbox"/>' ),
+        DarkboxShadow = $( '<div class="darkbox-shadow"/>' ),
+        DarkboxCanvas = $( '<div class="darkbox-canvas"/>' ),
+        DarkboxImage = $( '<img/>' );
 
-      darkboxCanvas.append( darkboxImage, closeButton );
-      darkbox.
-        append( darkboxShadow, darkboxCanvas ).
+      DarkboxCanvas.append( DarkboxImage, CloseButton );
+      Darkbox.
+        append( DarkboxShadow, DarkboxCanvas ).
         appendTo( 'body' );
 
       // Darkbox constructor
@@ -48,7 +48,7 @@
 
           boxMargin: 50,
 
-          closeButtonTitle: closeButtonTitle
+          closeButtonTitle: CloseButtonTitle
         };
 
         $.extend( this, defaultSettings, userArgs );
@@ -63,7 +63,7 @@
 
         resetCanvasBackgroundChanges: function() {
           clearInterval( this.spinnerAnimationIntervalId );
-          darkboxCanvas.css( 'background-position', '24px 24px' );
+          DarkboxCanvas.css( 'background-position', '24px 24px' );
         },
 
 
@@ -73,8 +73,8 @@
 
           var link = $( e.currentTarget );
 
-          darkbox.addClass( 'darkbox-on' );
-          darkboxCanvas.css( {
+          Darkbox.addClass( 'darkbox-on' );
+          DarkboxCanvas.css( {
             'width': '',
             'marginLeft': '',
             'height': '',
@@ -88,24 +88,24 @@
           this.spinnerAnimationIntervalId = setInterval( function () {
             var shift = 24 - ( 56 * spinnerStep );
 
-            darkboxCanvas.css( 'background-position', '24px ' + shift + 'px' );
+            DarkboxCanvas.css( 'background-position', '24px ' + shift + 'px' );
 
             spinnerStep = ( 7 <= spinnerStep ) ? 0 : spinnerStep + 1;
           }, 90 );
 
-          darkboxImage.
+          DarkboxImage.
             one( 'error.darkbox', $.proxy( this, 'handleImageLoadError' ) ).
             bind( 'load.darkbox', $.proxy( this, 'handleImageLoad' ) ).
             css( { 'width': '', 'height': '' } ).
             attr( 'src', link.attr( 'href' ) ).
             attr( 'alt', link.attr( 'title' ) );
 
-          darkboxShadow.animate( { 'opacity': this.darkboxShadowOpacity }, this.shadowFadeInTime );
+          DarkboxShadow.animate( { 'opacity': this.darkboxShadowOpacity }, this.shadowFadeInTime );
 
           // Other Darkbox handlers
           var closeBoxRebound = $.proxy( this, 'closeBox' );
-          darkboxShadow.bind( 'click.darkbox', closeBoxRebound );
-          closeButton.
+          DarkboxShadow.bind( 'click.darkbox', closeBoxRebound );
+          CloseButton.
             bind( 'click.darkbox', closeBoxRebound ).
             attr( 'title', this.closeButtonTitle );
 
@@ -122,8 +122,8 @@
           var img = $( e.currentTarget ),
               ratio = 1,
               imgWidth = img.width(), imgHeight = img.height(),
-              darkboxWidth = darkbox.width(),
-              darkboxHeight = darkbox.height();
+              darkboxWidth = Darkbox.width(),
+              darkboxHeight = Darkbox.height();
 
           // Sometimes IE fires load event before loading image.
           if ( 0 === imgWidth && 0 === imgHeight ) {
@@ -144,10 +144,10 @@
             imgHeight = Math.round( imgHeight * ratio );
           }
 
-          darkbox.addClass( 'darkbox-loaded' );
+          Darkbox.addClass( 'darkbox-loaded' );
 
           // NOTE: we must show darkboxCanvas to compute dimensions right
-          darkboxCanvas.
+          DarkboxCanvas.
             animate( {
               width:      imgWidth,
               marginLeft: -imgWidth / 2,
@@ -156,7 +156,7 @@
               opacity: 1
               }, this.imageFadeInTime,
               function () {
-                darkbox.addClass( 'darkbox-done' );
+                Darkbox.addClass( 'darkbox-done' );
               }
             );
         },
@@ -165,7 +165,7 @@
         handleImageLoadError: function() {
           this.resetCanvasBackgroundChanges();
 
-          darkbox.addClass( 'darkbox-error' );
+          Darkbox.addClass( 'darkbox-error' );
           setTimeout( $.proxy(this, 'closeBox'), this.imageErrorFadeOutTime );
         },
 
@@ -174,21 +174,21 @@
         closeBox: function() {
           this.resetCanvasBackgroundChanges();
 
-          darkboxShadow.animate(
+          DarkboxShadow.animate(
             { opacity: 0 },
             this.shadowFadeOutTime,
             function () {
-              darkbox.removeClass( darkboxStateClasses );
+              Darkbox.removeClass( DarkboxStateClasses );
 
-              darkboxCanvas.stop(); // Stop animation on close
+              DarkboxCanvas.stop(); // Stop animation on close
 
               // FIXME: Prevent image download, current solution is not perfect
               // http://stackoverflow.com/questions/930237/javascript-cancel-stop-image-requests
-              darkboxImage.attr( 'src', '' ); // FIXME: Fires error in IE - check
+              DarkboxImage.attr( 'src', '' ); // FIXME: Fires error in IE - check
 
               // Unbinding via namespace
               $.each(
-                [darkboxImage, darkboxShadow, closeButton, $( document )],
+                [DarkboxImage, DarkboxShadow, CloseButton, $( document )],
                 function( i, elem ) {
                   elem.unbind( '.darkbox' );
                 }
@@ -201,7 +201,7 @@
         handleKey: function( e ) {
           // Close darkbox on space (32) and esc (27)
           if ( 27 === e.which || 32 === e.which ) {
-            if ( darkbox.is( ':visible' ) ) {
+            if ( Darkbox.is( ':visible' ) ) {
               e.preventDefault();
               this.closeBox();
             }

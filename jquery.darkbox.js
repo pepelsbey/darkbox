@@ -201,8 +201,7 @@
         handleKey: function( e ) {
           // Close darkbox on space (32) and esc (27)
           if ( 27 === e.which || 32 === e.which ) {
-            // If darkbox is visible
-            if ( 0 === $( 'div.darkbox:hidden' ).length ) {
+            if ( darkbox.is( ':visible' ) ) {
               e.preventDefault();
               this.closeBox();
             }

@@ -34,6 +34,117 @@
         append( DarkboxShadow, DarkboxCanvas ).
         appendTo( 'body' );
 
+
+
+      /* In order to keep all event handler bindings static, but still have
+      *  access to +this+ context, we pass +this+ to the variable +self+ on
+      *  each openBox() run. So inside functions self == darkboxInstance.
+      *  */
+      var self,
+
+      // Global event handlers & functions
+
+        resetCanvasBackgroundChanges = function() {
+          clearInterval( self.spinnerAnimationIntervalId );
+          DarkboxCanvas.css( 'background-position', '24px 24px' );
+        },
+
+        handleKey = function( e ) {
+          // Close darkbox on space (32) and esc (27)
+          if ( 27 === e.which || 32 === e.which ) {
+            if ( Darkbox.is( ':visible' ) ) {
+              e.preventDefault();
+              closeBox();
+            }
+          }
+        },
+
+        handleImageLoad = function( e ) {
+          resetCanvasBackgroundChanges();
+
+          var img = $( e.currentTarget ),
+              ratio = self.ratio,
+              imgWidth = img.width(), imgHeight = img.height(),
+              darkboxWidth = Darkbox.width(),
+              darkboxHeight = Darkbox.height();
+
+          // Sometimes IE fires load event before loading image.
+          if ( 0 === imgWidth && 0 === imgHeight ) {
+            setTimeout( function (){ img.load(); }, 10 );
+          }
+
+          // We must downsize the image when it is bigger than viewport
+          if (
+            ( imgWidth > darkboxWidth - self.boxMargin ) ||
+            ( imgHeight > darkboxHeight - self.boxMargin )
+          ) {
+            ratio = Math.min(
+              ( darkboxWidth - self.boxMargin ) / imgWidth,
+              ( darkboxHeight - self.boxMargin ) / imgHeight
+            );
+
+            imgWidth = Math.round( imgWidth * ratio );
+            imgHeight = Math.round( imgHeight * ratio );
+          }
+
+          Darkbox.addClass( 'darkbox-loaded' );
+
+          // NOTE: we must show darkboxCanvas to compute dimensions right
+          DarkboxCanvas.
+            animate( {
+              width:      imgWidth,
+              marginLeft: -imgWidth / 2,
+              height:     imgHeight,
+              marginTop:  -imgHeight / 2,
+              opacity: 1
+              }, self.imageFadeInTime,
+              function () {
+                Darkbox.addClass( 'darkbox-done' );
+              }
+            );
+        },
+
+        handleImageLoadError = function() {
+          resetCanvasBackgroundChanges();
+
+          Darkbox.addClass( 'darkbox-error' );
+          setTimeout( closeBox, self.imageErrorFadeOutTime );
+        },
+
+        closeBox = function() {
+          resetCanvasBackgroundChanges();
+
+          DarkboxShadow.animate(
+            { opacity: 0 },
+            self.shadowFadeOutTime,
+            function () {
+              Darkbox.removeClass( DarkboxStateClasses );
+
+              DarkboxCanvas.stop(); // Stop animation on close
+
+              // FIXME: Prevent image download, current solution is not perfect
+              // http://stackoverflow.com/questions/930237/javascript-cancel-stop-image-requests
+              DarkboxImage.attr( 'src', '' ); // FIXME: Fires error in IE - check
+            }
+          );
+        };
+      
+      // Static bindings
+
+      DarkboxImage.
+        bind( 'load.darkbox', handleImageLoad ).
+        bind( 'error.darkbox', handleImageLoadError );
+
+      CloseButton.bind( 'click.darkbox', closeBox );
+      DarkboxShadow.bind( 'click.darkbox', closeBox );
+
+      // FIXME: need better solution
+      // Opera preventDefault for space on keypress
+      // Safari reacts on esc only on keydown
+      $( document ).bind( 'keypress.darkbox keydown.darkbox', handleKey );
+
+
+
       // Darkbox constructor
       $.fn.darkbox.Class = function( userArgs ) {
         var defaultSettings = {
@@ -47,6 +158,7 @@
           imageErrorFadeOutTime: 800,
 
           boxMargin: 50,
+          ratio: 1,
 
           closeButtonTitle: CloseButtonTitle
         };
@@ -55,20 +167,13 @@
       };
 
 
-      /* All event handlers has .darkbox namespace (see jQuery unbind doc).
-         To ensure all .darkbox() sets will have unique user's settings we must bind/unbind
-         listeners on each image show.
-      */
       $.fn.darkbox.Class.prototype = {
-
-        resetCanvasBackgroundChanges: function() {
-          clearInterval( this.spinnerAnimationIntervalId );
-          DarkboxCanvas.css( 'background-position', '24px 24px' );
-        },
-
 
         // User clicks on the Darkbox link
         openBox: function( e ) {
+          // Using closure to capture +this+
+          self = this;
+
           e.preventDefault();
 
           var link = $( e.currentTarget );
@@ -94,118 +199,13 @@
           }, 90 );
 
           DarkboxImage.
-            one( 'error.darkbox', $.proxy( this, 'handleImageLoadError' ) ).
-            bind( 'load.darkbox', $.proxy( this, 'handleImageLoad' ) ).
             css( { 'width': '', 'height': '' } ).
             attr( 'src', link.attr( 'href' ) ).
             attr( 'alt', link.attr( 'title' ) );
 
           DarkboxShadow.animate( { 'opacity': this.darkboxShadowOpacity }, this.shadowFadeInTime );
 
-          // Other Darkbox handlers
-          var closeBoxRebound = $.proxy( this, 'closeBox' );
-          DarkboxShadow.bind( 'click.darkbox', closeBoxRebound );
-          CloseButton.
-            bind( 'click.darkbox', closeBoxRebound ).
-            attr( 'title', this.closeButtonTitle );
-
-          // FIXME: need better solution
-          // Opera preventDefault for space on keypress
-          // Safari reacts on esc only on keydown
-          $( document ).bind( 'keypress.darkbox keydown.darkbox', $.proxy( this, 'handleKey' ) )
-        },
-
-
-        handleImageLoad: function( e ) {
-          this.resetCanvasBackgroundChanges();
-
-          var img = $( e.currentTarget ),
-              ratio = 1,
-              imgWidth = img.width(), imgHeight = img.height(),
-              darkboxWidth = Darkbox.width(),
-              darkboxHeight = Darkbox.height();
-
-          // Sometimes IE fires load event before loading image.
-          if ( 0 === imgWidth && 0 === imgHeight ) {
-            setTimeout( function (){ img.load(); }, 10 );
-          }
-
-          // We must downsize the image when it is bigger than viewport
-          if (
-            ( imgWidth > darkboxWidth - this.boxMargin ) ||
-            ( imgHeight > darkboxHeight - this.boxMargin )
-          ) {
-            ratio = Math.min(
-              ( darkboxWidth - this.boxMargin ) / imgWidth,
-              ( darkboxHeight - this.boxMargin ) / imgHeight
-            );
-
-            imgWidth = Math.round( imgWidth * ratio );
-            imgHeight = Math.round( imgHeight * ratio );
-          }
-
-          Darkbox.addClass( 'darkbox-loaded' );
-
-          // NOTE: we must show darkboxCanvas to compute dimensions right
-          DarkboxCanvas.
-            animate( {
-              width:      imgWidth,
-              marginLeft: -imgWidth / 2,
-              height:     imgHeight,
-              marginTop:  -imgHeight / 2,
-              opacity: 1
-              }, this.imageFadeInTime,
-              function () {
-                Darkbox.addClass( 'darkbox-done' );
-              }
-            );
-        },
-
-
-        handleImageLoadError: function() {
-          this.resetCanvasBackgroundChanges();
-
-          Darkbox.addClass( 'darkbox-error' );
-          setTimeout( $.proxy(this, 'closeBox'), this.imageErrorFadeOutTime );
-        },
-
-
-        // User closes Darkbox via GUI or keyboard
-        closeBox: function() {
-          this.resetCanvasBackgroundChanges();
-
-          DarkboxShadow.animate(
-            { opacity: 0 },
-            this.shadowFadeOutTime,
-            function () {
-              Darkbox.removeClass( DarkboxStateClasses );
-
-              DarkboxCanvas.stop(); // Stop animation on close
-
-              // FIXME: Prevent image download, current solution is not perfect
-              // http://stackoverflow.com/questions/930237/javascript-cancel-stop-image-requests
-              DarkboxImage.attr( 'src', '' ); // FIXME: Fires error in IE - check
-
-              // Unbinding via namespace
-              $.each(
-                [DarkboxImage, DarkboxShadow, CloseButton, $( document )],
-                function( i, elem ) {
-                  elem.unbind( '.darkbox' );
-                }
-              );
-            }
-          );
-        },
-
-
-        handleKey: function( e ) {
-          // Close darkbox on space (32) and esc (27)
-          if ( 27 === e.which || 32 === e.which ) {
-            if ( Darkbox.is( ':visible' ) ) {
-              e.preventDefault();
-              this.closeBox();
-            }
-          }
+          CloseButton.attr( 'title', this.closeButtonTitle );
         }
       };
     } // ran once

@@ -1,175 +1,218 @@
 ( function ( $ ) {
 
-	$.fn.darkbox = function () {
-		// Add all necessary Darkbox nodes
-		$( '<div class="darkbox"><div class="darkbox-shadow"></div><div class="darkbox-canvas"><img alt=""><div class="darkbox-button" title="Close"></div></div></div>' ).
-			appendTo( 'body' );
+  $.fn.darkbox = function ( userSettings ) {
 
-		var shadowFadeInTime  = 200,
-			shadowFadeOutTime = 100,
+    // Run once
+    if ( !$.fn.darkbox.Class ) {
 
-			imageFadeInTime       = 400,
-			imageErrorFadeOutTime = 800,
+      // Add all necessary Darkbox nodes (as constants)
+      var closebuttonPlaceClass = /mac/i.test( navigator.platform ) ? // FIXME: Ubuntu 10(11?) by default has left-side controls too
+          'darkbox-button-left' : 'darkbox-button-right',
 
-			darkboxStateClasses =
-				'darkbox-on darkbox-done darkbox-loaded darkbox-error',
+        DarkboxStateClasses = 'darkbox-on darkbox-done darkbox-loaded darkbox-error',
 
-			boxMargin = 50, // For cases, when image is bigger than viewport
+        CloseButtonTitle = function() {
+          switch( $( 'html' ).attr( 'lang' ) ) {
+            case 'ru':
+              return 'Закрыть';
+            default:
+              return 'Close';
+          }
+        }(), // call it in place
 
-			buttonPlaceClass = /mac/i.test( navigator.platform ) ?
-				'darkbox-button-left' :
-				'darkbox-button-right',
+        CloseButton = $( '<div/>', {
+          'class': 'darkbox-button ' + closebuttonPlaceClass
+        }),
 
-			darkbox = $( 'div.darkbox' ),
-			darkboxShadow = darkbox.children( 'div.darkbox-shadow' ),
-			darkboxCanvas = darkbox.children( 'div.darkbox-canvas' ),
-			darkboxImage  = darkboxCanvas.children( 'img' ),
-			darkboxButton = darkboxCanvas.children( 'div.darkbox-button' ),
-			spinnerAnimationIntervalId = 0, spinnerStep = 0;
+        Darkbox = $( '<div class="darkbox"/>' ),
+        DarkboxShadow = $( '<div class="darkbox-shadow"/>' ),
+        DarkboxCanvas = $( '<div class="darkbox-canvas"/>' ),
+        DarkboxImage = $( '<img/>' );
 
-		function resetCanvasBackgroundChanges() {
-			clearInterval( spinnerAnimationIntervalId );
-			darkboxCanvas.css( 'background-position', '24px 24px' );
-		}
+      DarkboxCanvas.append( DarkboxImage, CloseButton );
+      Darkbox.
+        append( DarkboxShadow, DarkboxCanvas ).
+        appendTo( 'body' );
 
-		function openBox ( e ) {
-			e.preventDefault();
 
-			var link = $( this );
 
-			darkbox.addClass( 'darkbox-on' );
+      /* In order to keep all event handler bindings static, but still have
+      *  access to +this+ context, we pass +this+ to the variable +self+ on
+      *  each openBox() run. So inside functions self == darkboxInstance.
+      *  */
+      var self,
 
-			darkboxCanvas.css( {
-				'width': '',
-				'marginLeft': '',
-				'height': '',
-				'marginTop': '',
-				'opacity': 0.5
-			} );
+      // Global event handlers & functions
 
-			// FIXME: Constants for initial shift, step height, number of
-			// steps, interval?
-			spinnerAnimationIntervalId = setInterval( function () {
-				var shift = 24 - ( 56 * spinnerStep ); 
+        resetCanvasBackgroundChanges = function() {
+          clearInterval( self.spinnerAnimationIntervalId );
+          DarkboxCanvas.css( 'background-position', '24px 24px' );
+        },
 
-				darkboxCanvas.css( 'background-position', '24px ' + shift + 'px' );
+        handleKey = function( e ) {
+          // Close darkbox on space (32) and esc (27)
+          if ( 27 === e.which || 32 === e.which ) {
+            if ( Darkbox.is( ':visible' ) ) {
+              e.preventDefault();
+              closeBox();
+            }
+          }
+        },
 
-				spinnerStep = ( 7 <= spinnerStep ) ? 0 : spinnerStep + 1;
-			}, 90 );
+        handleImageLoad = function( e ) {
+          resetCanvasBackgroundChanges();
 
-			darkboxImage.
-				one( 'error', handleImageLoadError ).
-				css( { 'width': '', 'height': '' } ).
-				attr( 'src', link.attr( 'href' ) ).
-				attr( 'alt', link.attr( 'title' ) );
+          var img = $( e.currentTarget ),
+              ratio = self.ratio,
+              imgWidth = img.width(), imgHeight = img.height(),
+              darkboxWidth = Darkbox.width(),
+              darkboxHeight = Darkbox.height();
 
-			darkboxShadow.animate( { 'opacity': 0.6 }, shadowFadeInTime );
-		}
+          // Sometimes IE fires load event before loading image.
+          if ( 0 === imgWidth && 0 === imgHeight ) {
+            setTimeout( function (){ img.load(); }, 10 );
+          }
 
-		function closeBox() {
-			resetCanvasBackgroundChanges();
+          // We must downsize the image when it is bigger than viewport
+          if (
+            ( imgWidth > darkboxWidth - self.boxMargin ) ||
+            ( imgHeight > darkboxHeight - self.boxMargin )
+          ) {
+            ratio = Math.min(
+              ( darkboxWidth - self.boxMargin ) / imgWidth,
+              ( darkboxHeight - self.boxMargin ) / imgHeight
+            );
 
-			darkboxShadow.animate(
-				{ opacity: 0 },
-				shadowFadeOutTime,
-				function () {
-					darkbox.removeClass( darkboxStateClasses );
+            imgWidth = Math.round( imgWidth * ratio );
+            imgHeight = Math.round( imgHeight * ratio );
+          }
 
-					darkboxCanvas.stop(); // Stop animation on close
+          Darkbox.addClass( 'darkbox-loaded' );
 
-					// FIXME: Prevent image download, current solution is not perfect
-					// http://stackoverflow.com/questions/930237/javascript-cancel-stop-image-requests
-					darkboxImage.
-						unbind( 'error', handleImageLoadError ).
-						attr( 'src', '' ); // FIXME: Fires error in IE - check
-				}
-			);
-		}
+          // NOTE: we must show darkboxCanvas to compute dimensions right
+          DarkboxCanvas.
+            animate( {
+              width:      imgWidth,
+              marginLeft: -imgWidth / 2,
+              height:     imgHeight,
+              marginTop:  -imgHeight / 2,
+              opacity: 1
+              }, self.imageFadeInTime,
+              function () {
+                Darkbox.addClass( 'darkbox-done' );
+              }
+            );
+        },
 
-		function handleKey( e ) {
-			// Close darkbox on space (32) and esc (27)
-			if ( 27 === e.which || 32 === e.which ) {
-				// If darkbox is visible
-				if ( 0 === $( 'div.darkbox:hidden' ).length ) {
-					e.preventDefault();
-					closeBox();
-				}
-			}
-		}
+        handleImageLoadError = function() {
+          resetCanvasBackgroundChanges();
 
-		function handleImageLoadError() {
-			resetCanvasBackgroundChanges();
+          Darkbox.addClass( 'darkbox-error' );
+          setTimeout( closeBox, self.imageErrorFadeOutTime );
+        },
 
-			darkbox.addClass( 'darkbox-error' );
-			setTimeout( closeBox, imageErrorFadeOutTime );
-		}
+        closeBox = function() {
+          resetCanvasBackgroundChanges();
 
-		function handleImageLoad() {
-			resetCanvasBackgroundChanges();
+          DarkboxShadow.animate(
+            { opacity: 0 },
+            self.shadowFadeOutTime,
+            function () {
+              Darkbox.removeClass( DarkboxStateClasses );
 
-			var img = $( this ),
-				ratio = 1,
-				imgWidth = img.width(), imgHeight = img.height(),
-				darkboxWidth = darkbox.width(),
-				darkboxHeight = darkbox.height();
+              DarkboxCanvas.stop(); // Stop animation on close
 
-			// Sometimes IE fires load event before loading image.
-			if ( 0 === imgWidth && 0 === imgHeight ) {
-				setTimeout( function (){ img.load(); }, 10 );
-				return;
-			}
+              // FIXME: Prevent image download, current solution is not perfect
+              // http://stackoverflow.com/questions/930237/javascript-cancel-stop-image-requests
+              DarkboxImage.attr( 'src', '' ); // FIXME: Fires error in IE - check
+            }
+          );
+        };
+      
+      // Static bindings
 
-			// We must downsize the image when it is bigger than viewport
-			if (
-				( imgWidth > darkboxWidth - boxMargin ) ||
-				( imgHeight > darkboxHeight - boxMargin )
-			) {
-				ratio = Math.min(
-					( darkboxWidth - boxMargin ) / imgWidth,
-					( darkboxHeight - boxMargin ) / imgHeight
-				);
+      DarkboxImage.
+        bind( 'load.darkbox', handleImageLoad ).
+        bind( 'error.darkbox', handleImageLoadError );
 
-				imgWidth = Math.round( imgWidth * ratio );
-				imgHeight = Math.round( imgHeight * ratio );
-			}
+      CloseButton.bind( 'click.darkbox', closeBox );
+      DarkboxShadow.bind( 'click.darkbox', closeBox );
 
-			darkbox.addClass( 'darkbox-loaded' );
+      // FIXME: need better solution
+      // Opera preventDefault for space on keypress
+      // Safari reacts on esc only on keydown
+      $( document ).bind( 'keypress.darkbox keydown.darkbox', handleKey );
 
-			// NOTE: we must show darkboxCanvas to compute dimensions right
-			darkboxCanvas.
-				animate( {
-					width:      imgWidth,
-					marginLeft: -imgWidth / 2,
-					height:     imgHeight,
-					marginTop:  -imgHeight / 2,
-					opacity: 1
-					}, imageFadeInTime,
-					function () {
-						darkbox.addClass( 'darkbox-done' );
-					}
-				);
-		}
 
-		// Darkbox handlers
-		darkboxShadow.
-			css( { opacity: 0 } ).
-			click( closeBox );
 
-		darkboxButton.
-			addClass( buttonPlaceClass ).
-			click( closeBox );
+      // Darkbox constructor
+      $.fn.darkbox.Class = function( userArgs ) {
+        var defaultSettings = {
+          shadowFadeInTime: 200,
+          shadowFadeOutTime: 100,
+          darkboxShadowOpacity: 0.6,
 
-		darkboxImage.load( handleImageLoad );
+          darkboxCanvasOpacity: 0.5,
 
-		// FIXME: need better solution
-		// Opera preventDefault for space on keypress
-		// Safari reacts on esc only on keydown
-		$( document ).
-			keypress( handleKey ).
-			keydown( handleKey );
+          imageFadeInTime: 400,
+          imageErrorFadeOutTime: 800,
 
-		this.click( openBox );
+          boxMargin: 50,
+          ratio: 1,
 
-		return this; // Support chaining
-	};
+          closeButtonTitle: CloseButtonTitle
+        };
+
+        $.extend( this, defaultSettings, userArgs );
+      };
+
+
+      $.fn.darkbox.Class.prototype = {
+
+        // User clicks on the Darkbox link
+        openBox: function( e ) {
+          // Using closure to capture +this+
+          self = this;
+
+          e.preventDefault();
+
+          var link = $( e.currentTarget );
+
+          Darkbox.addClass( 'darkbox-on' );
+          DarkboxCanvas.css( {
+            'width': '',
+            'marginLeft': '',
+            'height': '',
+            'marginTop': '',
+            'opacity': this.darkboxCanvasOpacity
+          } );
+
+          // FIXME: Constants for initial shift, step height, number of
+          // steps, interval?
+          var spinnerStep = 0;
+          this.spinnerAnimationIntervalId = setInterval( function () {
+            var shift = 24 - ( 56 * spinnerStep );
+
+            DarkboxCanvas.css( 'background-position', '24px ' + shift + 'px' );
+
+            spinnerStep = ( 7 <= spinnerStep ) ? 0 : spinnerStep + 1;
+          }, 90 );
+
+          DarkboxImage.
+            css( { 'width': '', 'height': '' } ).
+            attr( 'src', link.attr( 'href' ) ).
+            attr( 'alt', link.attr( 'title' ) );
+
+          DarkboxShadow.animate( { 'opacity': this.darkboxShadowOpacity }, this.shadowFadeInTime );
+
+          CloseButton.attr( 'title', this.closeButtonTitle );
+        }
+      };
+    } // ran once
+
+    var darkboxInstance = new $.fn.darkbox.Class( userSettings );
+    this.click( $.proxy( darkboxInstance, 'openBox' ) );
+
+    return this; // Support chaining
+  };
 } ( jQuery ) );
